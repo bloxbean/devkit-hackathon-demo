@@ -1,0 +1,143 @@
+name: Yaci DevKit Examples CI
+
+on:
+  workflow_dispatch:  # Allows manual triggering
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-examples:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '24'
+
+      - name: Install JBang
+        run: |
+          curl -Ls https://sh.jbang.dev | bash -s - app setup
+          echo "$HOME/.jbang/bin" >> $GITHUB_PATH
+
+      - name: Install Yaci DevKit
+        run: npm install -g @bloxbean/yaci-devkit
+
+      - name: Start Yaci DevKit
+        run: |
+          nohup yaci-devkit up --enable-yaci-store > devkit.log 2>&1 &
+          echo $! > devkit.pid
+
+      - name: Wait for DevKit to be ready
+        run: |
+          echo "Waiting for Yaci DevKit to be ready..."
+          max_attempts=30
+          attempt=0
+          while [ $attempt -lt $max_attempts ]; do
+            if nc -z localhost 8080; then
+              echo "DevKit is ready!"
+              break
+            fi
+            echo "Waiting for DevKit... (attempt $((attempt + 1))/$max_attempts)"
+            sleep 5
+            attempt=$((attempt + 1))
+          done
+
+          if [ $attempt -eq $max_attempts ]; then
+            echo "DevKit failed to start within expected time"
+            cat devkit.log
+            exit 1
+          fi
+
+      - name: Verify DevKit is running
+        run: |
+          curl -f http://localhost:8080/swagger-ui/index.html || (cat devkit.log && exit 1)
+          curl -f http://localhost:3001/api/v1/epochs/latest || (cat devkit.log && exit 1)
+
+      - name: Install MeshJS dependencies
+        working-directory: ./meshjs
+        run: bun install
+
+      - name: Run MeshJS payment example
+        working-directory: ./meshjs
+        run: |
+          echo "Running MeshJS payment example..."
+          bun run payment.ts || echo "Payment example completed with status: $?"
+
+      - name: Run MeshJS payment splitter example
+        working-directory: ./meshjs
+        run: |
+          echo "Running MeshJS payment splitter (Plutus V3) example..."
+          bun run payment_splitter_plutusV3.ts || echo "Payment splitter example completed with status: $?"
+
+      - name: Install Lucid Evolution dependencies
+        working-directory: ./lucid-evo
+        run: bun install
+
+      - name: Run Lucid Evolution payment example
+        working-directory: ./lucid-evo
+        run: |
+          echo "Running Lucid Evolution payment example..."
+          bun run payment.ts || echo "Payment example completed with status: $?"
+
+      - name: Run Lucid Evolution Plutus V2 example
+        working-directory: ./lucid-evo
+        run: |
+          echo "Running Lucid Evolution Plutus V2 example..."
+          bun run plutus_v2.ts || echo "Plutus V2 example completed with status: $?"
+
+      - name: Run Lucid Evolution Plutus V3 example
+        working-directory: ./lucid-evo
+        run: |
+          echo "Running Lucid Evolution Plutus V3 example..."
+          bun run plutus_v3.ts || echo "Plutus V3 example completed with status: $?"
+
+      - name: Run CCL SimpleTransfer example
+        working-directory: ./ccl
+        run: |
+          echo "Running CCL SimpleTransfer example..."
+          jbang SimpleTransfer.java || echo "SimpleTransfer example completed with status: $?"
+
+      - name: Run CCL PaymentSplitter example
+        working-directory: ./ccl
+        run: |
+          echo "Running CCL PaymentSplitter example..."
+          jbang PaymentSplitter.java || echo "PaymentSplitter example completed with status: $?"
+
+      - name: Display DevKit logs on failure
+        if: failure()
+        run: |
+          echo "=== DevKit Logs ==="
+          cat devkit.log || echo "No DevKit logs found"
+
+      - name: Stop DevKit
+        if: always()
+        run: |
+          if [ -f devkit.pid ]; then
+            kill $(cat devkit.pid) || true
+          fi
+          pkill -f yaci-devkit || true
+
+      - name: Upload DevKit logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: devkit-logs
+          path: devkit.log
+          if-no-files-found: ignore

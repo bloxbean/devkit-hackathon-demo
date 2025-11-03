@@ -195,4 +195,4 @@ Ensure you're using Node.js v20.8.0 or higher for npm-based installation.
 
 ## License
 
-ISC
+MIT
