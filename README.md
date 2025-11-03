@@ -1,10 +1,10 @@
 # Yaci DevKit Hackathon Demo
 
-This repository contains examples demonstrating how to use [Yaci DevKit](https://devkit.yaci.xyz) with different Cardano development frameworks:
+This repository contains examples demonstrating how to use [Yaci DevKit](https://devkit.yaci.xyz) with different Cardano SDKs:
 
-- **MeshJS** - JavaScript/TypeScript SDK for Cardano
-- **Lucid Evolution** - Lightweight Cardano library
-- **Cardano Client Lib (CCL)** - Java library for Cardano
+- **MeshJS** - JavaScript/TypeScript 
+- **Lucid Evolution** - JavaScript/TypeScript
+- **Cardano Client Lib (CCL)** - Java/Scala/Kotlin
 
 ## Prerequisites
 
@@ -37,6 +37,8 @@ This repository contains examples demonstrating how to use [Yaci DevKit](https:/
 
 ### Option 2: NPM Installation (Recommended for CI/CD)
 
+**Supported on Linux-x64 & Mac ARM64** 
+
 ```bash
 npm install -g @bloxbean/yaci-devkit
 ```
@@ -50,8 +52,8 @@ yaci-devkit up --enable-yaci-store
 
 The DevKit should be accessible on:
 - **Node API**: http://localhost:8080
-- **Yaci Store (Blockfrost-compatible)**: http://localhost:3001
-- **Web Interface**: http://localhost:5173
+- **Yaci Store (Blockfrost-compatible)**: http://localhost:8080/api/v1/
+- **Yaci Viewer Web Interface**: http://localhost:5173
 
 ## Running the Examples
 
@@ -154,6 +156,8 @@ Useful commands when working with Yaci DevKit:
 - `devkit info` - Display node information
 - `devkit version` - Show DevKit version
 
+For a complete list of all available commands, see the [Yaci DevKit Commands Reference](https://devkit.yaci.xyz/commands).
+
 ## Customizing Block Time
 
 You can customize the devnet configuration when creating a node:
@@ -177,6 +181,7 @@ See [.github/workflows/devkit-ci.yml](.github/workflows/devkit-ci.yml) for the c
 
 - [Yaci DevKit Documentation](https://devkit.yaci.xyz)
 - [Yaci DevKit Getting Started](https://devkit.yaci.xyz/getting-started/docker)
+- [Yaci DevKit Commands Reference](https://devkit.yaci.xyz/commands)
 - [Yaci DevKit CI Integration](https://devkit.yaci.xyz/ci-integration)
 - [MeshJS Documentation](https://meshjs.dev)
 - [Lucid Evolution](https://github.com/Anastasia-Labs/lucid-evolution)
