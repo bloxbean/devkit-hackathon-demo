@@ -31,44 +31,26 @@ jobs:
           distribution: 'temurin'
           java-version: '24'
 
+      - name: Install and Start Yaci DevKit
+        run: |
+          npm install -g @bloxbean/yaci-devkit
+          nohup yaci-devkit up --enable-yaci-store > yaci-devkit.log 2>&1 &
+
+      - name: Wait for Yaci DevKit
+        run: |
+          for i in {1..30}; do
+            if nc -z localhost 8080; then
+              echo "✅ Yaci DevKit ready"
+              exit 0
+            fi
+            sleep 5
+          done
+          exit 1
+
       - name: Install JBang
         run: |
           curl -Ls https://sh.jbang.dev | bash -s - app setup
-          echo "$HOME/.jbang/bin" >> $GITHUB_PATH
-
-      - name: Install Yaci DevKit
-        run: npm install -g @bloxbean/yaci-devkit
-
-      - name: Start Yaci DevKit
-        run: |
-          nohup yaci-devkit up --enable-yaci-store > devkit.log 2>&1 &
-          echo $! > devkit.pid
-
-      - name: Wait for DevKit to be ready
-        run: |
-          echo "Waiting for Yaci DevKit to be ready..."
-          max_attempts=30
-          attempt=0
-          while [ $attempt -lt $max_attempts ]; do
-            if nc -z localhost 8080; then
-              echo "DevKit is ready!"
-              break
-            fi
-            echo "Waiting for DevKit... (attempt $((attempt + 1))/$max_attempts)"
-            sleep 5
-            attempt=$((attempt + 1))
-          done
-
-          if [ $attempt -eq $max_attempts ]; then
-            echo "DevKit failed to start within expected time"
-            cat devkit.log
-            exit 1
-          fi
-
-      - name: Verify DevKit is running
-        run: |
-          curl -f http://localhost:8080/swagger-ui/index.html || (cat devkit.log && exit 1)
-          curl -f http://localhost:3001/api/v1/epochs/latest || (cat devkit.log && exit 1)
+          echo "$HOME/.jbang/bin" >> $GITHUB_PATH    
 
       - name: Install MeshJS dependencies
         working-directory: ./meshjs
