@@ -149,12 +149,78 @@ The CCL folder contains Java examples using JBang:
 
 Useful commands when working with Yaci DevKit:
 
-- `devkit start` - Launch containers and CLI
+- `devkit start` - Launch containers and start Yaci CLI
 - `devkit stop` - Stop all containers
 - `devkit cli` - Run cardano-cli commands
 - `devkit ssh` - Connect to the container
 - `devkit info` - Display node information
 - `devkit version` - Show DevKit version
+
+## Yaci CLI Commands
+
+After `devkit start` command, you should see `yaci-cli>` prompt. You can use various yaci-cli commands in this prompt:
+
+### Common Commands
+
+**create-node** - Creates a devnet node with configurable parameters
+```bash
+create-node [options]
+```
+
+Example: `create-node -o --start`
+
+**reset** - Clears data and logs, then restarts the devnet to initial state
+```bash
+reset
+```
+
+**stop** - Halts the local devnet without removing data
+```bash
+stop
+```
+
+**exit** - Terminates the node, services, and CLI session
+```bash
+exit
+```
+
+**topup** - Funds an address with specified ADA amount
+```bash
+topup [--address String] [--value double]
+```
+Example: `topup addr_test1qrz... 45000`
+
+**default-addresses** - Displays 20 pre-funded default addresses from test mnemonic
+```bash
+default-addresses
+```
+
+**show-faucet-addresses** - Lists faucet addresses used for funding operations
+```bash
+show-faucet-addresses
+```
+
+**utxos** - Retrieves UTXOs for a specified address
+```bash
+utxos [address] [--pretty-print-inline-datum]
+```
+
+**tip** - Shows node tip; displays all node tips in multi-node mode
+```bash
+tip
+```
+
+**info** - Displays node information
+```bash
+info
+```
+
+### Log Commands
+
+- `logs` - Display node logs
+- `yaci-store-logs` - Display Yaci Store logs
+- `ogmios-logs` - Display Ogmios logs
+- `kupo-logs` - Display Kupo logs
 
 For a complete list of all available commands, see the [Yaci DevKit Commands Reference](https://devkit.yaci.xyz/commands).
 
