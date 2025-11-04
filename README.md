@@ -82,7 +82,7 @@ The MeshJS folder contains examples using Mesh SDK:
 
 ### Lucid Evolution Examples
 
-The Lucid Evolution folder contains examples using Lucid library:
+The Lucid Evolution folder contains examples using Lucid Evolution library:
 
 1. Navigate to the lucid-evo folder:
    ```bash
